@@ -2,14 +2,34 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from PIL import Image
+
+#####################
+
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.cluster import KMeans
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+#from keras.models import Sequential
+#from keras.layers import Dense
+
+#####################
+
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
 from sklearn.metrics import precision_score, recall_score 
 from streamlit_option_menu import option_menu
+
+#####################
+
+path = "/Users/mountasser/Desktop/Data Mining Project/Dataset/Clean_Dataset.csv"
+
+#####################
+
 
 def main():
 
@@ -31,7 +51,7 @@ def main():
 
         @st.cache(persist=True)
         def load_data():
-            data = pd.read_csv('/Users/mountasser/Desktop/NN Project/Dataset/Clean_Dataset.csv')
+            data = pd.read_csv(path)
             #Encoding for the categorical values
             #Make it easier for the model to work
             categorical_columns = ['Income_type', 'Education_type', 'Family_status', 'Occupation_type', 'Housing_type']
@@ -74,7 +94,7 @@ def main():
         x_train, x_test, y_train, y_test = split(df)
         class_names = ['Accepted', 'Rejected']
         st.sidebar.subheader("Choose Classifier")
-        classifier = st.sidebar.selectbox("Classifier", ("Support Vector Machine (SVM)", "Logistic Regression", "Random Forest"))
+        classifier = st.sidebar.selectbox("Classifier", ("Support Vector Machine (SVM)", "Logistic Regression", "Random Forest", "K-Means Clustering", "K-Nearest Neighbors (KNN)", "Naive Bayes", "Decision Tree", "Artificial Neural Network (ANN)"))
 
         if classifier == 'Support Vector Machine (SVM)':
             st.sidebar.subheader("Model Hyperparameters")
@@ -137,8 +157,104 @@ def main():
                 plot_metrics(metrics)
 
 
+        if classifier == 'K-Means Clustering':
+            st.sidebar.subheader("Model Hyperparameters")
+            n_clusters = st.sidebar.number_input("The number of clusters", 0, 5, step=1, key='n_clusters')
+
+
+            metrics = st.sidebar.multiselect("What metrics to plot?", ('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+
+            if st.sidebar.button("Classify", key='classify'):
+                st.subheader("K-Means Clustering Results")
+                model = RandomForestClassifier(n_estimators=n_clusters)
+                model.fit(x_train, y_train)
+                accuracy = model.score(x_test, y_test)
+                y_pred = model.predict(x_test)
+                st.write("Accuracy: ", accuracy.round(2))
+                st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
+                st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+                plot_metrics(metrics)
+
+        
+        if classifier == 'K-Nearest Neighbors (KNN)':
+            st.sidebar.subheader("Model Hyperparameters")
+            n_neighbors = st.sidebar.number_input("The number of neighbors", 2, 10, step=1, key='n_neighbors')
+
+            metrics = st.sidebar.multiselect("What metrics to plot?", ('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+
+            if st.sidebar.button("Classify", key='classify'):
+                st.subheader("KNN Results")
+                model = KNeighborsClassifier(n_neighbors=n_neighbors)
+                model.fit(x_train, y_train)
+                accuracy = model.score(x_test, y_test)
+                y_pred = model.predict(x_test)
+                st.write("Accuracy: ", accuracy.round(2))
+                st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
+                st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+                plot_metrics(metrics)
+
+
+        if classifier == 'Naive Bayes':
+            st.sidebar.subheader("Model Hyperparameters")
+            alpha = st.sidebar.number_input("Adjust the Alplha parameter", 0, 10, step=1, key='alpha')
+
+            metrics = st.sidebar.multiselect("What metrics to plot?", ('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+
+            if st.sidebar.button("Classify", key='classify'):
+                st.subheader("Naive Bayes Results")
+                model = BernoulliNB(alpha=alpha)
+                model.fit(x_train, y_train)
+                accuracy = model.score(x_test, y_test)
+                y_pred = model.predict(x_test)
+                st.write("Accuracy: ", accuracy.round(2))
+                st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
+                st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+                plot_metrics(metrics)
+
+
+        if classifier == 'Decision Tree':
+            st.sidebar.subheader("Model Hyperparameters")
+            min_samples_leaf = st.sidebar.number_input("The maximum depth of the decision tree", 0, 100, step=10, key='min_samples_leaf')
+            max_depth = st.sidebar.number_input("The minimum samples leaf of the decision tree", 0, 10, step=1, key='max_depth')
+
+            metrics = st.sidebar.multiselect("What metrics to plot?", ('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+
+            if st.sidebar.button("Classify", key='classify'):
+                st.subheader("Naive Bayes Results")
+                model = DecisionTreeClassifier(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
+                model.fit(x_train, y_train)
+                accuracy = model.score(x_test, y_test)
+                y_pred = model.predict(x_test)
+                st.write("Accuracy: ", accuracy.round(2))
+                st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
+                st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+                plot_metrics(metrics)
+
+        
+        if classifier == 'Artificial Neural Network (ANN)':
+            st.sidebar.subheader("Model Hyperparameters")
+            epochs = st.sidebar.number_input("Number of epochs while training", 10, 50, step=10, key='epochs')
+
+            metrics = st.sidebar.multiselect("What metrics to plot?", ('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+
+            if st.sidebar.button("Classify", key='classify'):
+                st.subheader("Neural Networks Results")
+                # Create a neural network with 2 hidden layers, each with 10 neurons
+                model = MLPClassifier(hidden_layer_sizes=(10,10), max_iter=1000, random_state=42) 
+                model.fit(x_train, y_train)
+                accuracy = model.score(x_test, y_test)
+                y_pred = model.predict(x_test)
+                st.write("Accuracy: ", accuracy.round(2))
+                st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
+                st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+                plot_metrics(metrics)
+
+
+######################################################################
+
+
     if selected == "Home":
-        raw_data = pd.read_csv('/Users/mountasser/Desktop/NN Project/Dataset/Clean_Dataset.csv')
+        raw_data = pd.read_csv(path)
         st.sidebar.title("Checkbox this to show the raw data!")
         if st.sidebar.checkbox("Show raw data", False):
             st.subheader("Credit Card Dataset Classification")
@@ -146,7 +262,7 @@ def main():
         st.title("Credit Card Approval Predictor Solution")
         st.markdown("💳 Will your credit card be approved or rejected?")
         st.markdown("💳 This is a project made at The National School for Computer Science and Systems Analysis - ENSIAS, Mohamed V University - UM5")
-        image1 = Image.open('/Users/mountasser/Desktop/NN Project/Images/ENSIAS.png')
+        image1 = Image.open('/Users/mountasser/Desktop/Projects/NN Project/Images/ENSIAS.png')
         st.image(image1, caption='ENSIAS')
 
 
@@ -206,7 +322,7 @@ def main():
             if submitted:
 
 
-                data = pd.read_csv('/Users/mountasser/Desktop/NN Project/Dataset/Clean_Dataset.csv')
+                data = pd.read_csv(path)
                 data = data.drop(columns=['ID'])
                 #Encoding for the categorical values
                 #Make it easier for the model to work
