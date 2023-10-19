@@ -5,4 +5,4 @@ This fun project presents a comprehensive solution for detecting credit card eli
 
 Check this demo video here:
 
-shorturl.at/hirIO
+Video demo link[https://drive.google.com/file/d/17BMUJA7icLtUj7S4084hjWvqBL_T18fY/view?usp=share_link]
